@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sqflite/sqflite.dart';
 import 'database.dart';
-import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -9,7 +7,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final DatabaseHelper _db = DatabaseHelper();
+  final DatabaseConnection _db = DatabaseConnection();
   List<Map<String, dynamic>> _products = [];
 
   @override
@@ -38,37 +36,18 @@ class _HomeScreenState extends State<HomeScreen> {
         itemCount: _products.length,
         itemBuilder: (context, index) {
           final product = _products[index];
-          return ElevatedButton(
-              onPressed: () =>
-                  Navigator.pushNamed(context, '/detail', arguments: product),
-              child: Card(
-                child: Column(children: [
-                  Image.asset('images/${product['image']}'),
-                  SizedBox(height: 15),
-                  Text(product['name']),
-                  SizedBox(height: 15),
-                  Text(product['description']),
-                  SizedBox(height: 15),
-                  Text('Price: ${product['price']}'),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: () => Navigator.pushNamed(
-                          context,
-                          '/edit',
-                          arguments: product,
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: () => _deleteProduct(product['id']),
-                      ),
-                    ],
-                  )
-                ]),
-              ));
+          return ListTile(
+            leading: Image.asset(product['image']),
+            title: Text(product['name']),
+            subtitle: Text(product['description']),
+            trailing: Text('\$${product['price']}'),
+            onTap: () => Navigator.pushNamed(
+              context,
+              '/detail',
+              arguments: product,
+            ),
+            onLongPress: () => _deleteProduct(product['id']),
+          );
         },
       ),
       floatingActionButton: FloatingActionButton(

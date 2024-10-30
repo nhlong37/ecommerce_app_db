@@ -12,7 +12,7 @@ class AddEditScreen extends StatefulWidget {
 
 class _AddEditScreenState extends State<AddEditScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _dbHelper = DatabaseHelper();
+  final _db = DatabaseConnection();
   String _name = '';
   String _description = '';
   int _price = 0;
@@ -39,9 +39,9 @@ class _AddEditScreenState extends State<AddEditScreen> {
       };
 
       if (widget.product == null) {
-        await _dbHelper.insertProduct(product);
+        await _db.insertProduct(product);
       } else {
-        await _dbHelper.updateProduct(widget.product!['id'], product);
+        await _db.updateProduct(widget.product!['id'], product);
       }
       Navigator.pop(context);
     }

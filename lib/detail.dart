@@ -3,12 +3,12 @@ import 'database.dart';
 
 class DetailScreen extends StatelessWidget {
   final Map<String, dynamic> product;
-  final DatabaseHelper _dbHelper = DatabaseHelper();
+  final DatabaseConnection _db = DatabaseConnection();
 
   DetailScreen({required this.product});
 
   void _deleteProduct(BuildContext context, int id) async {
-    await _dbHelper.deleteProduct(id);
+    await _db.deleteProduct(id);
     Navigator.pop(context);
   }
 
