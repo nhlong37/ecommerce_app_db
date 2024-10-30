@@ -57,25 +57,25 @@ class _AddEditScreenState extends State<AddEditScreen> {
           children: [
             TextFormField(
               initialValue: _name,
-              decoration: InputDecoration(labelText: 'Name'),
+              decoration: InputDecoration(labelText: 'Tên sản phẩm'),
               validator: (value) {
-                if (value == null || value.isEmpty) return 'Please enter a name';
+                if (value == null || value.isEmpty) return 'Vui lòng nhập tên sản phẩm';
                 return null;
               },
               onSaved: (value) => _name = value!,
             ),
             TextFormField(
               initialValue: _description,
-              decoration: InputDecoration(labelText: 'Description'),
+              decoration: InputDecoration(labelText: 'Mô tả sản phẩm'),
               onSaved: (value) => _description = value!,
             ),
             TextFormField(
               initialValue: _price.toString(),
-              decoration: InputDecoration(labelText: 'Price'),
+              decoration: InputDecoration(labelText: 'Giá'),
               keyboardType: TextInputType.number,
               validator: (value) {
                 final price = int.tryParse(value ?? '');
-                if (price == null || price <= 0) return 'Enter a positive integer';
+                if (price == null || price <= 0) return 'giá phải là số nguyên dương';
                 return null;
               },
               onSaved: (value) => _price = int.parse(value!),

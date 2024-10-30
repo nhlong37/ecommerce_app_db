@@ -1,23 +1,30 @@
+import 'package:ecommerce_app/addedit.dart';
+import 'package:ecommerce_app/detail.dart';
 import 'package:ecommerce_app/home.dart';
 import 'package:flutter/material.dart';
 
-Future<void> main() async {
-  runApp(const MyApp());
-}
+
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: HomeScreen(),
+      title: 'Product App',
+      // initialRoute: '/',
+      debugShowCheckedModeBanner: false,
+      routes: {
+        '/': (context) => HomeScreen(),
+        '/add': (context) => AddEditScreen(),
+        '/edit': (context) {
+          final product = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          return AddEditScreen(product: product);
+        },
+        '/detail': (context) {
+          final product = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          return DetailScreen(product: product);
+        },
+      },
     );
   }
 }
-
