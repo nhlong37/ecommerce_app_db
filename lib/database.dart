@@ -1,63 +1,93 @@
-import 'dart:async';
+import 'package:ecommerce_app/model/product.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
-class DatabaseConnection {
+class DatabaseHelper {
+  static final DatabaseHelper instance = DatabaseHelper._init();
+  static Database? _database;
 
-  Future<Database> _initDatabase() async {
-    return await openDatabase(
-      join(await getDatabasesPath(), 'products.db'),
-      version: 1,
-      onCreate: _onCreate,
-    );
+  DatabaseHelper._init();
+
+  Future<Database> get database async {
+    if (_database != null) return _database!;
+    _database = await _initDB('product.db');
+    return _database!;
   }
 
-  Future<void> _onCreate(Database db, int version) async {
-    await db.execute(' CREATE TABLE products (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, description TEXT, price INTEGER, image TEXT) ');
+  Future<Database> _initDB(String filePath) async {
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, filePath);
 
+    return await openDatabase(path, version: 1, onCreate: _createDB);
+  }
+
+  Future _createDB(Database db, int version) async {
+    await db.execute('''
+      CREATE TABLE products (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE,
+        description TEXT,
+        price INTEGER,
+        image TEXT
+      )
+    ''');
+
+    // Thêm sản phẩm mẫu vào database
     await db.insert('products', {
-      'name': 'Sản phẩm 1',
-      'description': 'Là một cuốn sách chia sẻ những bí quyết, kỹ năng đàm phán, thuyết trình hiệu quả giúp bạn chinh phục mọi đối tượng',
-      'price': 1*1000,
+      'name': 'Sản phẩm mẫu',
+      'description': 'Đây là sản phẩm mẫu đầu tiên',
+      'price': 1000 * 10,
       'image': '1.jpg'
     });
   }
 
-  Database? _database;
-
-  Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDatabase();
-    return _database!;
+  // Hàm lấy danh sách tất cả sản phẩm
+  Future<List<Product>> getProducts() async {
+    final db = await instance.database;
+    final result = await db.query('products');
+    return result.map((json) => Product.fromMap(json)).toList();
   }
 
-  Future<List<Map<String, dynamic>>> getProducts() async {
-    final db = await database;
-    return await db.query('products');
+  // Hàm thêm sản phẩm
+  Future<int> addProduct(Product product) async {
+    final db = await instance.database;
+    return await db.insert('products', product.toMap());
   }
 
-  Future<int> insertProduct(Map<String, dynamic> product) async {
-    final db = await database;
-    return await db.insert('products', product);
+  // Hàm kiểm tra sản phẩm đã tồn tại
+  Future<bool> checkProductNameExists(String name) async {
+    final db = await instance.database;
+    final result = await db.query(
+      'products',
+      where: 'name = ?',
+      whereArgs: [name],
+    );
+    return result.isNotEmpty;
   }
 
-  Future<int> updateProduct(int id, Map<String, dynamic> product) async {
-    final db = await database;
+  // Hàm cập nhật sản phẩm
+  Future<int> updateProduct(Product product) async {
+    final db = await instance.database;
     return await db.update(
       'products',
-      product,
+      product.toMap(),
       where: 'id = ?',
-      whereArgs: [id],
+      whereArgs: [product.id],
     );
   }
 
+  // Hàm xóa sản phẩm
   Future<int> deleteProduct(int id) async {
-    final db = await database;
+    final db = await instance.database;
     return await db.delete(
       'products',
       where: 'id = ?',
       whereArgs: [id],
     );
   }
-  
+
+  Future close() async {
+    final db = await instance.database;
+    db.close();
+  }
 }
